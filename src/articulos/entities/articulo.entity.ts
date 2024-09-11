@@ -3,7 +3,7 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 // Un Entity es una clase que mapea una tabla en la base de datos
 @Entity('articulos')
 export class Articulo {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   // Nombre es unico y no puede ser nulo
@@ -19,12 +19,13 @@ export class Articulo {
   })
   sap: number;
 
-  @Column('text')
+  @Column('text',{
+    unique: true
+  })
   codigo_interno: string;
 
   // SKU es opcional y por defecto es 0
   @Column('int', {
-    unique: true,
     default: 0,
     nullable: true
   })	
