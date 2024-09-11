@@ -12,7 +12,7 @@ export class CreateArticuloDto {
   @IsOptional()
   sap?: number;
 
-  @IsString()
+  
   codigo_interno: string;
 
   @IsNumber()

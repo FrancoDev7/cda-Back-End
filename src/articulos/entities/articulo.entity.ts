@@ -1,9 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, AfterInsert, BeforeInsert, } from 'typeorm';
 
 // Un Entity es una clase que mapea una tabla en la base de datos
 @Entity('articulos')
 export class Articulo {
-  @PrimaryGeneratedColumn('increment')
+  @PrimaryGeneratedColumn()
   id: number;
 
   // Nombre es unico y no puede ser nulo
@@ -20,7 +20,9 @@ export class Articulo {
   sap: number;
 
   @Column('text',{
-    unique: true
+    unique: true,
+    nullable:true
+    
   })
   codigo_interno: string;
 
@@ -50,6 +52,19 @@ export class Articulo {
     default: true
   })
   activo: boolean;
+
+  // @BeforeInsert()
+  // updateCodigoInterno() {
+  //   this.codigo_interno = `${this.nombre.substring(0,3)}${this.unidad_medida.charAt(0)}${this.id}`.toUpperCase();
+  // }
+  // @AfterInsert()
+  // updateCodigoInterno() {
+  //   this.codigo_interno = `${this.nombre.substring(0,3)}${this.unidad_medida.charAt(0)}${this.id}`.toUpperCase();
+  //   // No es necesario hacer un await ya que el campo se actualiza antes de insertar el registro
+
+  // }
+
+  
 
 
   
