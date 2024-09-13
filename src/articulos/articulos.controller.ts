@@ -1,34 +1,47 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query } from '@nestjs/common';
 import { ArticulosService } from './articulos.service';
 import { CreateArticuloDto } from './dto/create-articulo.dto';
 import { UpdateArticuloDto } from './dto/update-articulo.dto';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Controller('articulos')
 export class ArticulosController {
   constructor(private readonly articulosService: ArticulosService) {}
 
   @Post()
-  create(@Body() createArticuloDto: CreateArticuloDto) {
+  create(
+    @Body() createArticuloDto: CreateArticuloDto
+  ) {
     return this.articulosService.create(createArticuloDto);
   }
 
   @Get()
-  findAll() {
-    return this.articulosService.findAll();
+  findAll( 
+    @Query() paginationDto: PaginationDto 
+  ) {
+    return this.articulosService.findAll(paginationDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.articulosService.findOne(+id);
+  @Get(':term')
+  findOne(
+    @Param( 'term' ) term: string
+  ) {
+    return this.articulosService.findOne( term ) ;
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateArticuloDto: UpdateArticuloDto) {
+  update(
+    @Param( 'id', ParseIntPipe ) id: number, 
+    @Body() updateArticuloDto: UpdateArticuloDto
+  ) {
     return this.articulosService.update(+id, updateArticuloDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(
+    @Param('id',ParseIntPipe) id: number
+  ) {
     return this.articulosService.remove(+id);
   }
+  
 }

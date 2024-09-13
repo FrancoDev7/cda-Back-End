@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { ArticulosModule } from './articulos/articulos.module';
+import { CommonModule } from './common/common.module';
 
 
 @Module({
@@ -25,6 +26,8 @@ import { ArticulosModule } from './articulos/articulos.module';
     }),
 
     ArticulosModule,
+
+    CommonModule,
   ],
   controllers: [],
   providers: [],

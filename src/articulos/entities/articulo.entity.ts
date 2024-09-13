@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, AfterInsert, BeforeInsert, } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, BeforeUpdate, } from 'typeorm';
 
 // Un Entity es una clase que mapea una tabla en la base de datos
 @Entity('articulos')
@@ -40,8 +40,10 @@ export class Articulo {
   @Column({nullable: true})
   comentario: string;
 
-  // Precio por defecto es 0 y puede ser opcional
-  @Column('float',{
+  // Precio por defecto es 0 y puede ser opcional quiero que sea en dolares 
+  @Column('decimal',{
+    precision: 10,
+    scale: 2,
     default: 0,
     nullable: true
   })
@@ -53,19 +55,13 @@ export class Articulo {
   })
   activo: boolean;
 
-  // @BeforeInsert()
-  // updateCodigoInterno() {
-  //   this.codigo_interno = `${this.nombre.substring(0,3)}${this.unidad_medida.charAt(0)}${this.id}`.toUpperCase();
-  // }
-  // @AfterInsert()
-  // updateCodigoInterno() {
-  //   this.codigo_interno = `${this.nombre.substring(0,3)}${this.unidad_medida.charAt(0)}${this.id}`.toUpperCase();
-  //   // No es necesario hacer un await ya que el campo se actualiza antes de insertar el registro
-
-  // }
-
-  
-
-
-  
+ 
+  // Cuando se inserte un nuevo articulo se debe guardar el precio en dolares ejemplo si pasa 150 debe ser 150.00
+  @BeforeInsert()
+  @BeforeUpdate()
+  formatPrecio() {
+    if (this.precio != null) {
+      this.precio = Number(Number(this.precio).toFixed(2));
+    }
+  }
 }
