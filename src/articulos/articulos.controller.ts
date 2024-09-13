@@ -25,7 +25,7 @@ export class ArticulosController {
   findOne(
     @Param( 'term' ) term: string
   ) {
-    return this.articulosService.findOne( term ) ;
+    return this.articulosService.findOnePlain( term ) ;
   }
 
   @Patch(':id')

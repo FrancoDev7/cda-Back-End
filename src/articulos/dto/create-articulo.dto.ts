@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsPositive, IsString, MinLength } from "class-validator";
+import { IsArray, IsNumber, IsOptional, IsPositive, IsString, MinLength } from "class-validator";
 
 //La información que se recibe del cliente para crear un nuevo artículo
 export class CreateArticuloDto {
@@ -31,6 +31,11 @@ export class CreateArticuloDto {
   @IsPositive()
   @IsOptional()
   precio?: number;
+
+  @IsString({ each: true })
+  @IsArray()
+  @IsOptional()
+  images?: string[];
 
   @IsOptional()
   activo?: boolean;

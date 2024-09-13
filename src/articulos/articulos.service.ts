@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { CreateArticuloDto, UpdateArticuloDto } from './dto';
-import { Articulo } from './entities';
+import { Articulo, ArticuloImage } from './entities';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Injectable()
@@ -17,22 +17,37 @@ export class ArticulosService {
     @InjectRepository(Articulo)
     private articuloRepository: Repository<Articulo>,
 
+    @InjectRepository(ArticuloImage)
+    private articuloImageRepository: Repository<ArticuloImage>,
+
   ) {}
 
   async create(createArticuloDto: CreateArticuloDto) {
 
     try {
+
+      const { images = [], ...articuloDetails } = createArticuloDto;
+
       //creando el articulo con los datos del DTO 
-      const articulo = this.articuloRepository.create( createArticuloDto );
+      const articulo = this.articuloRepository.create({
+        ...articuloDetails,
+        images: images.map( image => this.articuloImageRepository.create({ url: image }))
+      });
+
       //guardando el articulo en la base de datos
       await this.articuloRepository.save( articulo );
 
       // Actualizar el codigo_interno después de la inserción
       articulo.codigo_interno = `${articulo.nombre.substring(0,3)}${articulo.unidad_medida.charAt(0)}${articulo.id}`.toUpperCase();
+
       //guardando el articulo en la base de datos con el codigo_interno actualizado
       await this.articuloRepository.save(articulo);
+
       //retornando el articulo creado
-      return articulo;
+      return {
+        ...articulo,
+        images
+      };
 
     } catch (error) {
       this.handleDBExceptions(error);
@@ -41,20 +56,26 @@ export class ArticulosService {
   }
 
   //metodo para obtener todos los articulos con paginacion 
-  findAll( paginationDto: PaginationDto ) {
+  async findAll( paginationDto: PaginationDto ) {
 
     const { limit = 10, offset = 0 } = paginationDto;	
 
-    return this.articuloRepository.find({
+    const articulos = await this.articuloRepository.find({
       take: limit,
       skip: offset,
-      where: { activo: true }
+      where: { activo: true },
+      relations: { images: true }
     });
-    
+
+    return articulos.map( articulo => ({
+      ...articulo,
+      images: articulo.images.map( img => img.url )
+    }));
   }
 
   //metodo para obtener un articulo por su id y nombre y  no mostrar los articulos eliminados activo = false
   async findOne( term: string ) {
+
     let articulo: Articulo;
 
     if ( !isNaN( +term ) ) {
@@ -66,11 +87,22 @@ export class ArticulosService {
         nombre: term.toUpperCase() 
       })
       .andWhere('articulo.activo = :activo', { activo: true })
+      .leftJoinAndSelect('articulo.images', 'images')
       .getOne();
     }
 
     if ( !articulo ) throw new NotFoundException(`Articulo con el ${ term } no encontrado`);
+    
     return articulo;
+
+  }
+
+  async findOnePlain( term: string ) {
+    const { images = [], ...rest } = await this.findOne( term );
+    return {
+      ...rest,
+      images: images.map( img => img.url )
+    };
   }
 
   //metodo para actualizar un articulo por su id
@@ -79,6 +111,7 @@ export class ArticulosService {
     const articulo = await this.articuloRepository.preload({
       id: id,
       ...updateArticuloDto, //spread operator para actualizar los campos del articulo con los datos del DTO 
+      images: [],
     });
 
     if ( !articulo ) throw new NotFoundException(`Articulo con el id: ${ id } no encontrado`);
