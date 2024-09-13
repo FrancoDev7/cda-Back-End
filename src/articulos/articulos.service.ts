@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
-import { CreateArticuloDto } from './dto/create-articulo.dto';
-import { UpdateArticuloDto } from './dto/update-articulo.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Articulo } from './entities/articulo.entity';
 import { Repository } from 'typeorm';
+
+import { CreateArticuloDto, UpdateArticuloDto } from './dto';
+import { Articulo } from './entities';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Injectable()

@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query } from '@nestjs/common';
 import { ArticulosService } from './articulos.service';
-import { CreateArticuloDto } from './dto/create-articulo.dto';
-import { UpdateArticuloDto } from './dto/update-articulo.dto';
+import { CreateArticuloDto, UpdateArticuloDto } from './dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Controller('articulos')
@@ -43,5 +42,5 @@ export class ArticulosController {
   ) {
     return this.articulosService.remove(+id);
   }
-  
+
 }
