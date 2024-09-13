@@ -69,7 +69,7 @@ export class ArticulosService {
       .getOne();
     }
 
-    if ( !articulo ) throw new NotFoundException(`Articulo with id ${ term } not found`);
+    if ( !articulo ) throw new NotFoundException(`Articulo con el ${ term } no encontrado`);
     return articulo;
   }
 
