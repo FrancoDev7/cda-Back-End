@@ -18,6 +18,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  // como habilito el cors
+  app.enableCors();
 
   await app.listen(process.env.PORT);
   logger.log(`Application listening on port ${process.env.PORT}`);
