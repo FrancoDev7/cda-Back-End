@@ -10,6 +10,7 @@ import { Articulo , ArticuloImage } from './entities';
   providers: [ArticulosService],
   imports: [
     TypeOrmModule.forFeature([ Articulo, ArticuloImage ])
-  ]
+  ],
+  exports: [ ArticulosService, TypeOrmModule ]
 })
 export class ArticulosModule {}

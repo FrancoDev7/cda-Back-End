@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 import { CreateArticuloDto, UpdateArticuloDto } from './dto';
 import { Articulo, ArticuloImage } from './entities';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Injectable()
 export class ArticulosService {
@@ -19,6 +19,8 @@ export class ArticulosService {
 
     @InjectRepository(ArticuloImage)
     private articuloImageRepository: Repository<ArticuloImage>,
+
+    private readonly dataSource: DataSource,
 
   ) {}
 
@@ -60,17 +62,23 @@ export class ArticulosService {
 
     const { limit = 10, offset = 0 } = paginationDto;	
 
-    const articulos = await this.articuloRepository.find({
+    const [ articulos, total ] = await this.articuloRepository.findAndCount({
       take: limit,
       skip: offset,
       where: { activo: true },
+      order: { id: 'ASC' },
       relations: { images: true }
     });
 
-    return articulos.map( articulo => ({
-      ...articulo,
-      images: articulo.images.map( img => img.url )
-    }));
+    return {
+      data: articulos.map(articulo => ({
+        ...articulo,
+        images: articulo.images.map(img => img.url),
+      })),
+      total, // El total de artículos en la base de datos
+      limit, // Cantidad de artículos por página
+      offset, // Desplazamiento actual
+    };
   }
 
   //metodo para obtener un articulo por su id y nombre y  no mostrar los articulos eliminados activo = false
@@ -97,8 +105,8 @@ export class ArticulosService {
 
   }
 
-  async findOnePlain( term: string ) {
-    const { images = [], ...rest } = await this.findOne( term );
+  async findOnePlain( term: string | number ) {
+    const { images = [], ...rest } = await this.findOne( term.toString() );
     return {
       ...rest,
       images: images.map( img => img.url )
@@ -108,19 +116,42 @@ export class ArticulosService {
   //metodo para actualizar un articulo por su id
   async update( id: number, updateArticuloDto: UpdateArticuloDto ) {
 
+    const { images, ...toUpdate } = updateArticuloDto;
+
     const articulo = await this.articuloRepository.preload({
-      id: id,
-      ...updateArticuloDto, //spread operator para actualizar los campos del articulo con los datos del DTO 
-      images: [],
+      id,
+      ...toUpdate, //spread operator para actualizar los campos del articulo con los datos del DTO 
     });
 
     if ( !articulo ) throw new NotFoundException(`Articulo con el id: ${ id } no encontrado`);
 
+    //actualizando las imagenes del articulo createQueryRunner
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+
     try {
-      await this.articuloRepository.save( articulo );
-      return articulo;
+
+      if ( images ) {
+        await queryRunner.manager.delete(ArticuloImage, { articulo: { id } });
+
+        articulo.images = images.map( 
+          image => this.articuloImageRepository.create({ url: image })
+        );
+      }
+
+      //await this.articuloRepository.save( articulo );
+      await queryRunner.manager.save( articulo );
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+
+      return this.findOnePlain( id );
 
     } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+
       this.handleDBExceptions(error);
     }
   }
@@ -141,4 +172,17 @@ export class ArticulosService {
     throw new InternalServerErrorException('Error inesperado, Check the logs for more information');
   }
 
+  async deleteAllArticulos() {
+    const query = this.articuloRepository.createQueryBuilder('articulo');
+
+    try {
+      return await query
+      .delete()
+      .where({})
+      .execute();
+
+    } catch (error) {
+      this.handleDBExceptions(error);   
+    }
+  }
 }

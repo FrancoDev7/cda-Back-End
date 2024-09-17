@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { ArticulosModule } from './articulos/articulos.module';
 import { CommonModule } from './common/common.module';
+import { SeedModule } from './seed/seed.module';
 
 
 @Module({
@@ -28,6 +29,8 @@ import { CommonModule } from './common/common.module';
     ArticulosModule,
 
     CommonModule,
+
+    SeedModule,
   ],
   controllers: [],
   providers: [],

@@ -12,4 +12,9 @@
 ```
 docker-compose up -d
 ```
-6. Levantar el Proyecto: ```pnpm start:dev```
+6. Ejecutar el SEED para cargar los datos de prueba
+```
+http://localhost:3000/api/seed
+```
+
+7. Levantar el Proyecto: ```pnpm start:dev```
