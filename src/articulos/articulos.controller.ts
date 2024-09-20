@@ -1,9 +1,11 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query } from '@nestjs/common';
 import { ArticulosService } from './articulos.service';
 import { CreateArticuloDto, UpdateArticuloDto } from './dto';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { PaginationDto } from '../common/dtos/pagination.dto';
+import { Auth } from 'src/auth/decorators';
 
 @Controller('articulos')
+// @Auth()
 export class ArticulosController {
   constructor(private readonly articulosService: ArticulosService) {}
 
