@@ -1,10 +1,14 @@
+import { join } from 'path';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 import { ArticulosModule } from './articulos/articulos.module';
 import { CommonModule } from './common/common.module';
 import { SeedModule } from './seed/seed.module';
+import { FilesModule } from './files/files.module';
+import { AuthModule } from './auth/auth.module';
 
 
 @Module({
@@ -26,11 +30,19 @@ import { SeedModule } from './seed/seed.module';
 
     }),
 
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'static'),
+    }),
+
     ArticulosModule,
 
     CommonModule,
 
     SeedModule,
+
+    FilesModule,
+
+    AuthModule,
   ],
   controllers: [],
   providers: [],
