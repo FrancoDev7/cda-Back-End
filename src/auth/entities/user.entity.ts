@@ -1,4 +1,5 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Articulo } from "../../articulos/entities";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('users')
 export class User {
@@ -29,6 +30,12 @@ export class User {
     default: ['user'],
   })
   roles: string[];
+
+  @OneToMany(
+    () => Articulo,
+    (articulo) => articulo.user,
+  )
+  articulo: Articulo
 
   @BeforeInsert()
   checkFieldsBeforeInsert() {
