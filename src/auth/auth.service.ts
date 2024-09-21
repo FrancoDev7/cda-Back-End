@@ -69,6 +69,14 @@ export class AuthService {
 
   }
 
+  // Verificar el estado de autenticación
+  async checkAuthStatus( user: User ) {
+    return {
+      ...user,
+      token: this.getJwtToken({ id: user.id })
+    }
+  }
+
   // Generar un token JWT
   private getJwtToken( payload: JwtPayload ) {
 

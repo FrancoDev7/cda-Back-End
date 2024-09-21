@@ -5,6 +5,7 @@ import { DataSource, Repository } from 'typeorm';
 import { CreateArticuloDto, UpdateArticuloDto } from './dto';
 import { Articulo, ArticuloImage } from './entities';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class ArticulosService {
@@ -24,7 +25,7 @@ export class ArticulosService {
 
   ) {}
 
-  async create(createArticuloDto: CreateArticuloDto) {
+  async create(createArticuloDto: CreateArticuloDto, user : User) {
 
     try {
 
@@ -33,7 +34,8 @@ export class ArticulosService {
       //creando el articulo con los datos del DTO 
       const articulo = this.articuloRepository.create({
         ...articuloDetails,
-        images: images.map( image => this.articuloImageRepository.create({ url: image }))
+        images: images.map( image => this.articuloImageRepository.create({ url: image })),
+        user
       });
 
       //guardando el articulo en la base de datos
@@ -114,7 +116,7 @@ export class ArticulosService {
   }
 
   //metodo para actualizar un articulo por su id
-  async update( id: number, updateArticuloDto: UpdateArticuloDto ) {
+  async update( id: number, updateArticuloDto: UpdateArticuloDto, user : User ) {
 
     const { images, ...toUpdate } = updateArticuloDto;
 
@@ -142,6 +144,7 @@ export class ArticulosService {
       }
 
       //await this.articuloRepository.save( articulo );
+      articulo.user = user;
       await queryRunner.manager.save( articulo );
       await queryRunner.commitTransaction();
       await queryRunner.release();

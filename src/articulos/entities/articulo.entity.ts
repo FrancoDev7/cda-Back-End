@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, BeforeUpdate, OneToMany, } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, BeforeUpdate, OneToMany, ManyToOne, } from 'typeorm';
 import { ArticuloImage } from './articulo-image.entity';
+import { User } from '../../auth/entities/user.entity';
 
 // Un Entity es una clase que mapea una tabla en la base de datos
 @Entity('articulos')
@@ -62,6 +63,13 @@ export class Articulo {
     { cascade: true, eager: true }
   ) 
   images?: ArticuloImage[];
+
+  @ManyToOne(
+    () => User,
+    ( user ) => user.articulo,
+    {eager: true}
+  )
+  user: User
 
  
   // Cuando se inserte un nuevo articulo se debe guardar el precio en dolares ejemplo si pasa 150 debe ser 150.00

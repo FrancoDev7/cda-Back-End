@@ -2,7 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query 
 import { ArticulosService } from './articulos.service';
 import { CreateArticuloDto, UpdateArticuloDto } from './dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
-import { Auth } from 'src/auth/decorators';
+import { Auth, GetUser } from '../auth/decorators';
+import { User } from '../auth/entities/user.entity';
 
 @Controller('articulos')
 // @Auth()
@@ -10,10 +11,12 @@ export class ArticulosController {
   constructor(private readonly articulosService: ArticulosService) {}
 
   @Post()
+  @Auth()
   create(
-    @Body() createArticuloDto: CreateArticuloDto
+    @Body() createArticuloDto: CreateArticuloDto,
+    @GetUser() user : User
   ) {
-    return this.articulosService.create(createArticuloDto);
+    return this.articulosService.create(createArticuloDto, user);
   }
 
   @Get()
@@ -31,11 +34,13 @@ export class ArticulosController {
   }
 
   @Patch(':id')
+  @Auth()
   update(
     @Param( 'id', ParseIntPipe ) id: number, 
-    @Body() updateArticuloDto: UpdateArticuloDto
+    @Body() updateArticuloDto: UpdateArticuloDto,
+    @GetUser() user : User
   ) {
-    return this.articulosService.update(+id, updateArticuloDto);
+    return this.articulosService.update(+id, updateArticuloDto, user);
   }
 
   @Delete(':id')
