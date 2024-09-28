@@ -8,6 +8,7 @@ import { CreateUserDto, LoginUserDto } from './dto';
 import { User } from './entities/user.entity';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 
 @Injectable()
@@ -39,7 +40,7 @@ export class AuthService {
 
       return {
         ...user,
-        token: this.getJwtToken({ id: user.id })
+        token: this.getJwtToken({ id: user.id, fullName: user.fullName } as JwtPayload)
       };
 
     } catch (error) {
@@ -55,7 +56,7 @@ export class AuthService {
 
     const user = await this.userRepository.findOne({
       where: { email },
-      select: { email: true, password: true, id: true }
+      select: { email: true, password: true, id: true, fullName: true, roles: true }
     });
 
     if ( !user ) throw new UnauthorizedException('Credenciales no válidas');
@@ -64,16 +65,27 @@ export class AuthService {
 
     return {
       ...user,
-      token: this.getJwtToken({ id: user.id })
+      token: this.getJwtToken({ id: user.id, fullName: user.fullName, roles: user.roles } as JwtPayload)
     }
 
   }
 
+  //traer todos los usuarios
+  async findAll(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+  
+    const [users, total] = await this.userRepository.findAndCount({
+      take: limit,
+      skip: offset,
+    });
+  
+    return { users, total };
+  }
   // Verificar el estado de autenticación
   async checkAuthStatus( user: User ) {
     return {
       ...user,
-      token: this.getJwtToken({ id: user.id })
+      token: this.getJwtToken({ id: user.id, fullName: user.fullName } as JwtPayload)
     }
   }
 

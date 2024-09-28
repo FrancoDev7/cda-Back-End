@@ -6,12 +6,10 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create (
+  const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    //new FastifyAdapter(),
+    new FastifyAdapter(),
   );
-
-
 
   const logger = new Logger('bootstrap');
 
@@ -23,7 +21,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  // como habilito el cors
+  // Habilitar cors 
   app.enableCors();
 
   await app.listen(process.env.PORT);

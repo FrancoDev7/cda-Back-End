@@ -11,12 +11,11 @@ export class ArticulosController {
   constructor(private readonly articulosService: ArticulosService) {}
 
   @Post()
-  @Auth()
   create(
     @Body() createArticuloDto: CreateArticuloDto,
-    @GetUser() user : User
+    //@GetUser() user : User
   ) {
-    return this.articulosService.create(createArticuloDto, user);
+    return this.articulosService.create(createArticuloDto);
   }
 
   @Get()

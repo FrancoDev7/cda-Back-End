@@ -25,7 +25,7 @@ export class ArticulosService {
 
   ) {}
 
-  async create(createArticuloDto: CreateArticuloDto, user : User) {
+  async create(createArticuloDto: CreateArticuloDto) {
 
     try {
 
@@ -35,7 +35,7 @@ export class ArticulosService {
       const articulo = this.articuloRepository.create({
         ...articuloDetails,
         images: images.map( image => this.articuloImageRepository.create({ url: image })),
-        user
+        //user
       });
 
       //guardando el articulo en la base de datos
@@ -60,28 +60,28 @@ export class ArticulosService {
   }
 
   //metodo para obtener todos los articulos con paginacion 
-  async findAll( paginationDto: PaginationDto ) {
-
-    const { limit = 10, offset = 0 } = paginationDto;	
-
-    const [ articulos, total ] = await this.articuloRepository.findAndCount({
+  async findAll(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+  
+    const [articulos, total] = await this.articuloRepository.findAndCount({
       take: limit,
       skip: offset,
       where: { activo: true },
       order: { id: 'ASC' },
-      relations: { images: true }
+      relations: { images: true },
     });
-
-    return {
-      data: articulos.map(articulo => ({
-        ...articulo,
-        images: articulo.images.map(img => img.url),
-      })),
-      total, // El total de artículos en la base de datos
-      limit, // Cantidad de artículos por página
-      offset, // Desplazamiento actual
+  
+    const articulosConImagenes = articulos.map((articulo) => ({
+      ...articulo,
+      images: articulo.images.map((img) => img.url),
+    }));
+  
+    return { 
+      total , 
+      articulos: articulosConImagenes, 
     };
   }
+
 
   //metodo para obtener un articulo por su id y nombre y  no mostrar los articulos eliminados activo = false
   async findOne( term: string ) {

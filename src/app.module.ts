@@ -32,6 +32,7 @@ import { AuthModule } from './auth/auth.module';
 
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'static'),
+      serveRoot: '/static',
     }),
 
     ArticulosModule,
