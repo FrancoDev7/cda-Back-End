@@ -81,6 +81,8 @@ export class AuthService {
   
     return { users, total };
   }
+
+  
   // Verificar el estado de autenticación
   async checkAuthStatus( user: User ) {
     return {
